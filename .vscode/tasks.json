@@ -4,49 +4,46 @@
 		{
 			"label": "compile verilog",
 			"type": "shell",
+			"options": {
+				"cwd": "${fileDirname}"
+			},
 			"command": "iverilog",
 			"args": [
-				"-o",
 				"-Wall",
-				"build/${fileBasenameNoExtension}_tb.vvp",
-				"${workspaceFolder}/src/${fileBasenameNoExtension}.v",
-				"${workspaceFolder}/test-bench/${fileBasenameNoExtension}_tb.v"
+				"-o",
+				"${fileBasenameNoExtension}_tb.vvp",
+				"${fileBasenameNoExtension}.v",
+				"${fileBasenameNoExtension}_tb.v",
+				"&&",
+				"vvp",
+				"${fileBasenameNoExtension}_tb.vvp",
 			],
-			"problemMatcher": [
-				"$tsc"
-			],
-			"group": "none"
-		},
-		{
-			"label": "complie verilog to vvp file",
-			"type": "shell",
-			"command": "vvp",
-			"args": [
-				"build/${fileBasenameNoExtension}_tb.vvp"
-			],
-			"problemMatcher": [
-				"$tsc"
-			],
-			"dependsOn": "compile verilog",
 			"group": "build"
 		},
 		{
 			"label": "run gtkwave",
 			"type": "shell",
+			"options": {
+				"cwd": "${fileDirname}"
+			},
 			"command": "gtkwave",
 			"args": [
 				"dump.vcd"
-			],
-			"problemMatcher": [
-				"$tsc"
 			],
 			"group": "build"
 		},
 		{
 			"label": "compile verilog and run gtkwave",
+			"type": "shell",
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"command": "gtkwave",
+			"args": [
+				"dump.vcd"
+			],
 			"dependsOn": [
-				"complie verilog to vvp file",
-				"run gtkwave"
+				"compile verilog",
 			],
 			"group": "build",
 		}

@@ -1,0 +1,54 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "compile verilog",
+			"type": "shell",
+			"command": "iverilog",
+			"args": [
+				"-o",
+				"-Wall",
+				"build/${fileBasenameNoExtension}_tb.vvp",
+				"${workspaceFolder}/src/${fileBasenameNoExtension}.v",
+				"${workspaceFolder}/test-bench/${fileBasenameNoExtension}_tb.v"
+			],
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "none"
+		},
+		{
+			"label": "complie verilog to vvp file",
+			"type": "shell",
+			"command": "vvp",
+			"args": [
+				"build/${fileBasenameNoExtension}_tb.vvp"
+			],
+			"problemMatcher": [
+				"$tsc"
+			],
+			"dependsOn": "compile verilog",
+			"group": "build"
+		},
+		{
+			"label": "run gtkwave",
+			"type": "shell",
+			"command": "gtkwave",
+			"args": [
+				"dump.vcd"
+			],
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "compile verilog and run gtkwave",
+			"dependsOn": [
+				"complie verilog to vvp file",
+				"run gtkwave"
+			],
+			"group": "build",
+		}
+	]
+}

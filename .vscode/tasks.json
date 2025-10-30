@@ -7,16 +7,9 @@
 			"options": {
 				"cwd": "${fileDirname}"
 			},
-			"command": "iverilog",
+			"command": "${workspaceFolder}/scripts/compile-all-verilog.sh",
 			"args": [
-				"-Wall",
-				"-o",
-				"${fileBasenameNoExtension}_tb.vvp",
-				"${fileBasenameNoExtension}.v",
-				"${fileBasenameNoExtension}_tb.v",
-				"&&",
-				"vvp",
-				"${fileBasenameNoExtension}_tb.vvp",
+				"${fileDirname}",
 			],
 			"group": "build"
 		},

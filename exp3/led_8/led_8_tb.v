@@ -82,5 +82,6 @@ module led_8_tb;
 	initial begin
 		$dumpfile("dump.vcd");
 		$dumpvars(0, led_8_tb);
+		$finish;
 	end
 endmodule

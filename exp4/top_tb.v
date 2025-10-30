@@ -11,8 +11,6 @@ module top_tb;
     wire [7:0] led_en;
     // led_cx from DUT (8-bit segment signals)
     wire [7:0] led_cx;
-    // alias used by this testbench
-    wire [7:0] led_cx_correct = led_cx;
 
     // Instantiate DUT
     top uut (
@@ -22,7 +20,7 @@ module top_tb;
         .button_count(button_count),
         .global_led_en(global_led_en),
         .led_en(led_en),
-        .led_cx(led_cx_correct)
+        .led_cx(led_cx)
     );
 
     // 100MHz clock generation
@@ -38,41 +36,41 @@ module top_tb;
         button_reset = 0;
         #100;
 
-        // Pulse button_count twice (non-debounced and debounced counters should increment)
+        // Pulse button_count twice (非去抖/去抖路径检查)
         pulse_button_count();
         #100;
         pulse_button_count();
         #200;
 
-        // Pulse start/stop to toggle decimal counter -> let it run long enough to see multiple 0.1s steps
+        // Pulse start/stop -> 让计数器运行一段缩短时间以便观察多个步进（缩短）
         pulse_start_stop();      // start
-        #500_000_000;            // 500 ms 等足够多个 0.1s 步进可见
+        #120_000_000;            // 120 ms（原 500 ms，缩短）
         pulse_start_stop();      // pause
         #200;
 
-        // Disable display (all digits off) then enable again (短时间切换以观察使能)
+        // Disable display then enable again（观察全局使能切换），时间缩短为 2 ms
         global_led_en = 0;
-        #10_000_000; // 10 ms
+        #2_000_000; // 2 ms
         global_led_en = 1;
-        #10_000_000;
+        #2_000_000;
 
-        // 生成若干周期性的按键脉冲（每 50ms 点击一次），观察计数累加
+        // 周期性按键脉冲（每 5 ms 点击一次，原为 50 ms）
         repeat (5) begin
             pulse_button_count();
-            #50_000_000; // 50 ms
+            #5_000_000; // 5 ms
         end
 
-        // 再次让十进制计数器运行一段时间以观察更多步进
+        // 再次让十进制计数器运行一段较短时间以观察更多步进
         pulse_start_stop(); // resume
-        #300_000_000;       // 300 ms
+        #60_000_000;        // 60 ms（原 300 ms）
         pulse_start_stop(); // pause
         #200;
 
-        // Assert asynchronous reset briefly，观察复位行为并继续运行一段时间
+        // Assert asynchronous reset briefly，时间缩短
         button_reset = 1;
         #40;
         button_reset = 0;
-        #200_000_000; // 200 ms 观察复位后行为
+        #20_000_000; // 20 ms（原 200 ms）
 
         $display("%0t: simulation end", $time);
         #100 $finish;
@@ -94,9 +92,10 @@ module top_tb;
         button_start_stop = 0;
     end endtask
 
-    // Simple monitor to print important signals
+    // Simple monitor to print important signals（修正为使用 led_cx）
     initial begin
-        $monitor("%0t rst=%b start_stop=%b count_btn=%b led_en=%b led_cx=%b global_en=%b", $time, button_reset, button_start_stop, button_count, led_en, led_cx_correct, global_led_en);
+        $monitor("%0t rst=%b start_stop=%b count_btn=%b led_en=%b led_cx=%b global_en=%b",
+                 $time, button_reset, button_start_stop, button_count, led_en, led_cx, global_led_en);
     end
 
 endmodule

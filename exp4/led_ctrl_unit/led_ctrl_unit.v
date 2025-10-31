@@ -35,7 +35,10 @@ module led_ctrl_unit (
 	);
 
 	reg [2:0] scan_cnt;
+	wire [2:0] scan_cnt_next;
 	reg [3:0] curr_digit;
+
+	assign scan_cnt_next = scan_cnt + 3'd1;
 
 	// 逐4位扫描待显示的8个十六进制字符
 	always @(posedge clk or negedge rst_n) begin
@@ -48,10 +51,10 @@ module led_ctrl_unit (
 			if (en) begin
 				// 更新当前扫描的4位数字
 				if (tick_digit) begin
-					scan_cnt <= scan_cnt + 1'b1;
+					scan_cnt <= scan_cnt_next;
 					// 位选信号循环左移
 					led_en <= {led_en[6:0], led_en[7]};
-					curr_digit <= display[scan_cnt*4 +: 4];
+					curr_digit <= display[{scan_cnt_next, 2'b00} +: 4];
 				end
 				// 根据当前数字设置段选信号
 				case (curr_digit)

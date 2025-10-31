@@ -37,34 +37,36 @@ module top (
 			count_value <= count_value + 1;
 	end
 
-	wire debounced_count_pulse; // 消抖后的 button_count 脉冲信号
+	wire debounced_count_pulse;
 	reg [7:0] debounced_count_value;
-	debounce u_debounce_button_count (
+	debounced_button_pulse #(.LAST_CYCLES(2_000_000)) u_debounced_button_count (
 		.clk(clk),
 		.rst_n(~button_reset),
 		.noisy_in(button_count),
-		.stable_out(debounced_count_pulse)
+		.pulse(debounced_count_pulse)
 	);
 	// 消抖计数
 	always @(posedge clk or posedge button_reset) begin
-		if (button_reset)
+		if (button_reset) begin
 			debounced_count_value <= 8'd0;
-		else if (debounced_count_pulse)
-			debounced_count_value <= debounced_count_value + 1;
+		end else begin
+			if (debounced_count_pulse)
+				debounced_count_value <= debounced_count_value + 1;
+		end
 	end
 
-	wire denounced_start_stop_pulse; // 消抖后的 button_start_stop 脉冲信号
-	debounce u_debounce_button_start_stop (
+	wire debounced_start_stop_pulse;
+	debounced_button_pulse #(.LAST_CYCLES(2_000_000)) u_debounced_button_start_stop (
 		.clk(clk),
 		.rst_n(~button_reset),
 		.noisy_in(button_start_stop),
-		.stable_out(denounced_start_stop_pulse)
+		.pulse(debounced_start_stop_pulse)
 	);
 	wire [7:0] decimal_counter_value;
 	counter_30 u_counter_30 (
 		.clk(clk),
 		.rst_n(~button_reset),
-		.start_stop(denounced_start_stop_pulse),
+		.start_stop_pulse(debounced_start_stop_pulse),
 		.count(decimal_counter_value)
 	);
 
